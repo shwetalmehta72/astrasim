@@ -1,0 +1,39 @@
+# Environment files
+.env
+*.env
+backend/.env
+
+# Python virtual environments
+.venv/
+backend/.venv/
+
+# Caches and artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+
+# Node/Next.js
+node_modules/
+.npm/
+.next/
+dist/
+build/
+coverage/
+
+# VSCode and editor junk
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+
+# Docker/compose
+*.pid
+
+# Misc
+*.tmp
+*.cache
+
+

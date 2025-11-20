@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  timescaledb:
+    image: timescale/timescaledb-ha:pg14-latest
+    container_name: astrasim-timescaledb
+    environment:
+      - POSTGRES_DB=astrasim
+      - POSTGRES_USER=astrasim
+      - POSTGRES_PASSWORD=astrasim
+    ports:
+      - "5432:5432"
+    volumes:
+      - timescaledb-data:/var/lib/postgresql/data
+      - ./db/timescale/schema:/docker-entrypoint-initdb.d:ro
+
+  backend:
+    build:
+      context: ..
+      dockerfile: infra/docker/backend/Dockerfile
+    volumes:
+      - ../backend:/app
+    environment:
+      - APP_ENV=development
+      - LOG_LEVEL=info
+      - DATABASE_HOST=timescaledb
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=astrasim
+      - DATABASE_USER=astrasim
+      - DATABASE_PASSWORD=astrasim
+      - DATABASE_URL=postgresql://astrasim:astrasim@timescaledb:5432/astrasim
+    ports:
+      - "8000:8000"
+    depends_on:
+      - timescaledb
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: infra/docker/frontend/Dockerfile
+    volumes:
+      - ../frontend:/app
+    environment:
+      - NEXT_TELEMETRY_DISABLED=1
+    ports:
+      - "3000:3000"
+    command: ["npm", "run", "dev"]
+
+volumes:
+  timescaledb-data:
+

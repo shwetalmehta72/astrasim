@@ -1,0 +1,18 @@
+# Prompt Log — AstraSim
+
+| Prompt ID | Date | Title | Scope Summary | Files Touched | Status |
+| --- | --- | --- | --- | --- | --- |
+| P1-SP00-PR00 | 2025-11-20 | Project Orchestration & Rules | Established meta-governance docs, decision log, backlog, and Cursor rules. | `docs/meta/PROJECT_MANIFEST.md`, `docs/meta/PROMPT_LOG.md`, `docs/meta/DECISION_LOG.md`, `docs/meta/TASK_BACKLOG.md`, `.cursorrules` | Completed |
+| P1-SP01-PR01 | 2025-11-20 | Environment Setup | Scaffolded backend (FastAPI), frontend (Next.js), infra (Docker/devcontainer), and dev scripts. | `backend/**`, `frontend/**`, `infra/**`, `scripts/*.sh`, `docs/meta/*` | Completed |
+| P1-SP01-PR02 | 2025-11-20 | TimescaleDB Schema v1 | Base instruments, OHLCV hypertable, corporate actions, and ingestion logging wired via docker-compose. | `infra/db/timescale/**`, `infra/docker-compose.yml`, `infra/devcontainer.json`, `backend/.env.example`, `docs/meta/*` | Completed |
+| P1-SP01-PR03 | 2025-11-20 | FastAPI Full Application Scaffold | App factory, centralized config/logging/exceptions, async DB pool, API v1 routes, and pytest coverage. | `backend/app/**`, `backend/tests/**`, `backend/.env.example`, `backend/pyproject.toml`, `docs/meta/*` | Completed |
+| P1-SP01-PR04 | 2025-11-20 | Frontend Scaffold Enhancements | Layout shell, shared components, placeholder pages, and Tailwind design tokens. | `frontend/app/**`, `frontend/components/**`, `frontend/tailwind.config.js`, `frontend/app/globals.css`, `frontend/README.md`, `docs/meta/*` | Completed |
+| P1-SP01-PR05 | 2025-11-20 | Developer Tooling + CI/CD Foundations | Pre-commit hooks, GH Actions CI, scripts, VSCode configs, and developer workflow docs. | `.github/workflows/`, `scripts/*.sh`, `.pre-commit-config.yaml`, `.vscode/*`, `README.md`, `backend/README.md`, `frontend/README.md`, `docs/development/DEV_WORKFLOW.md`, `docs/meta/*` | Completed |
+| P1-SP02-PR01 | 2025-11-20 | OHLCV Ingestion Pipeline | Polygon client, ingestion service (backfill/update), API + CLI triggers, and tests writing to Timescale. | `backend/app/clients/`, `backend/app/services/ingestion/`, `backend/app/api/v1/routes/ingestion.py`, `backend/app/cli/run_ingestion.py`, `backend/tests/`, `docs/meta/*` | Completed |
+| P1-SP02-PR02 | 2025-11-20 | Corporate Actions Ingestion | Dividends & splits ingestion, API/CLI triggers, and test coverage. | `backend/app/clients/`, `backend/app/services/ingestion/`, `backend/app/api/v1/routes/`, `backend/app/cli/`, `backend/tests/`, `docs/meta/*` | Completed |
+| P1-SP02-PR03 | 2025-11-20 | Index & Macro Series Ingestion | Polygon aggregates client, ingestion flow, API/CLI hooks, and tests for SPX/NDX/VIX/TNX + sector ETFs. | `backend/app/clients/`, `backend/app/services/ingestion/`, `backend/app/api/v1/routes/`, `backend/app/cli/`, `backend/tests/`, `docs/meta/*` | Completed |
+| P1-SP02-PR04 | 2025-11-20 | Validation & Reconciliation Framework | Validators, reconciliation engine, API/CLI, reconciliation_log schema, and tests. | `backend/app/services/validation/`, `backend/app/api/v1/routes/validation.py`, `backend/app/cli/run_validation.py`, `backend/app/cli/run_reconciliation.py`, `infra/db/timescale/schema/003_reconciliation_log.sql`, `backend/tests/**`, `docs/meta/*` | Completed |
+| P1-SP02-PR05 | 2025-11-20 | Scheduling & Backfill Jobs | APScheduler-based job runner, backfill orchestrator, scheduler API/CLI, manifest schema, and tests. | `backend/app/services/scheduler/`, `backend/app/api/v1/routes/scheduler.py`, `backend/app/cli/run_scheduler.py`, `backend/app/cli/run_backfill.py`, `infra/db/timescale/schema/004_backfill_manifest.sql`, `backend/tests/**`, `docs/meta/*` | Completed |
+
+_Add new rows chronologically as prompts complete._
+

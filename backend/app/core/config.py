@@ -1,0 +1,55 @@
+from functools import lru_cache
+from typing import Any
+
+from pydantic import Field, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="allow",
+    )
+
+    APP_NAME: str = "AstraSim Backend"
+    APP_VERSION: str = "0.1.0"
+    APP_ENV: str = "development"
+    APP_DEBUG: bool = True
+
+    API_V1_PREFIX: str = "/api/v1"
+    BACKEND_CORS_ORIGINS: list[str] = Field(default_factory=list)
+
+    DB_HOST: str = Field(default="localhost", alias="DATABASE_HOST")
+    DB_PORT: int = Field(default=5432, alias="DATABASE_PORT")
+    DB_NAME: str = Field(default="astrasim", alias="DATABASE_NAME")
+    DB_USER: str = Field(default="astrasim", alias="DATABASE_USER")
+    DB_PASSWORD: str = Field(default="astrasim", alias="DATABASE_PASSWORD")
+
+    POLYGON_API_KEY: str = Field(default="", alias="POLYGON_API_KEY")
+    POLYGON_BASE_URL: str = "https://api.polygon.io"
+    INGESTION_MAX_ATTEMPTS: int = 5
+    INGESTION_RATE_LIMIT_SLEEP: float = 1.0
+    CORP_ACTIONS_PAGE_LIMIT: int = 1000
+    INDEX_PAGE_LIMIT: int = 50000
+    VALIDATION_DEFAULT_LOOKBACK_DAYS: int = 30
+    VALIDATION_INDEX_ETF_THRESHOLD: float = 0.1
+    SCHEDULER_ENABLED: bool = True
+    SCHEDULER_TIMEZONE: str = "UTC"
+    JOB_INTERVAL_MINUTES: int = 60
+
+    @field_validator("BACKEND_CORS_ORIGINS", mode="before")
+    @classmethod
+    def split_cors_origins(cls, value: Any) -> list[str]:
+        if isinstance(value, str):
+            return [origin.strip() for origin in value.split(",") if origin.strip()]
+        if value is None:
+            return []
+        return value
+
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()
+

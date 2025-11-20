@@ -1,0 +1,27 @@
+# AstraSim Cursor Rules
+
+## Project Overview
+AstraSim is an event-driven Monte Carlo simulator for large-cap equities that combines calibrated data ingestion, a factor-based event universe, and AI explainability. Phase 1 delivers the core stack: backend + frontend scaffolds, Timescale data layer, regime detection, Monte Carlo with jumps, scenario UX, exports, and AI narratives.
+
+## Phase 1 Objectives
+- Stand up FastAPI backend, Next.js frontend, and Timescale/Postgres infra.
+- Implement data ingestion (prices, options, indices) with validation guardrails.
+- Build regime detection, stock analytics, factor/event modeling, calibration, and MC engine modules.
+- Ship Scenario Builder UI, simulation dashboards, AI explainers, and export tools.
+
+## Global Rules for AI Assistance
+1. **Prompt Discipline** — Start every response by stating the active Prompt ID + title, restate scope, and call out what is out of scope.
+2. **ID Scheme** — Use `P<phase>-SP<subphase>-PR<prompt>` for prompts and `T-XXXX` for backlog tasks.
+3. **Diff-First Planning** — Before editing, list target files and whether they will be created, extended, or refactored.
+4. **No Duplicate Files** — Always check for existing paths; never create copies like `*-final2`.
+5. **Meta Updates** — When structural/content files change, update:
+   - `docs/meta/PROJECT_MANIFEST.md`
+   - `docs/meta/PROMPT_LOG.md`
+   - `docs/meta/DECISION_LOG.md` (for ADR-worthy choices)
+   - `docs/meta/TASK_BACKLOG.md` (for follow-up work)
+6. **Respect Decisions** — Follow entries in `DECISION_LOG.md`; log new deviations.
+7. **Evidence First** — Inspect current repo state before coding; avoid assumptions.
+8. **Windows Awareness** — Prefer cross-platform paths, use PowerShell-friendly commands, and document Windows-specific nuances when relevant.
+
+_Keep this file updated as collaboration rules evolve._
+
