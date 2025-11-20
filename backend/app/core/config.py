@@ -38,6 +38,7 @@ class Settings(BaseSettings):
     SCHEDULER_ENABLED: bool = True
     SCHEDULER_TIMEZONE: str = "UTC"
     JOB_INTERVAL_MINUTES: int = 60
+    OPTIONS_SCHEMA_VERSION: str = "v1"
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod

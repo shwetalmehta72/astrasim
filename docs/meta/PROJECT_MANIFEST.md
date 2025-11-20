@@ -118,6 +118,11 @@ AstraSim is an event-driven Monte Carlo stock simulation and forecasting platfor
 | `backend/tests/test_scheduler_registration.py` | Tests ensuring scheduler registers all required jobs. | P1-SP02 | Completed |
 | `backend/tests/test_scheduler_jobs.py` | Tests verifying scheduler jobs call ingestion/validation hooks. | P1-SP02 | Completed |
 | `backend/tests/test_scheduler_api.py` | Tests for scheduler API endpoints. | P1-SP02 | Completed |
+| `infra/db/timescale/schema/005_option_chain_raw.sql` | Raw option chain snapshots. | P1-SP03 | Completed |
+| `infra/db/timescale/schema/006_option_straddles.sql` | Hypertable for normalized ATM straddles. | P1-SP03 | Completed |
+| `infra/db/timescale/schema/007_vol_surface_points.sql` | Hypertable for vol surface points. | P1-SP03 | Completed |
+| `backend/app/core/config.py` | Settings extended with OPTIONS_SCHEMA_VERSION. | P1-SP03 | Completed |
+| `backend/.env.example` | Added POLYGON_OPTIONS_API_KEY placeholder. | P1-SP03 | Completed |
 
 _Last updated: 2025-11-20_
 

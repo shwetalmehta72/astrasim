@@ -168,6 +168,20 @@
 - **Status:** Accepted
 - **Implications:** Any new orchestration workflows (options, fundamentals) must log to `backfill_manifest`; dashboards can join manifest rows with `ingestion_runs` for richer telemetry.
 
+## D-0027 — Options schema design
+- **Date:** 2025-11-20
+- **Context:** SP03 introduces options ingestion and requires canonical storage patterns for raw chains, straddles, and vol surfaces.
+- **Decision:** Create dedicated tables `option_chain_raw`, `option_straddles`, and `vol_surface_points` with FK references to `securities`/`ingestion_runs`, plus JSON payload columns for auditing.
+- **Status:** Accepted
+- **Implications:** All options-related ingestion must normalize into these tables; schema evolution (e.g., extra greeks) extends these files rather than duplicating structures.
+
+## D-0028 — Hypertable strategy for options data
+- **Date:** 2025-11-20
+- **Context:** Some option datasets are point-in-time snapshots while others are time-series suitable for Timescale optimizations.
+- **Decision:** Keep `option_chain_raw` as a standard table (occasional snapshots) but define `option_straddles` and `vol_surface_points` as hypertables on `snapshot_timestamp` for efficient time-series queries.
+- **Status:** Accepted
+- **Implications:** Future queries and aggregations should leverage hypertable functions; any additional time-series option metrics must follow the same pattern.
+
 ## D-0015 — Async ingestion architecture
 - **Date:** 2025-11-20
 - **Context:** Data ingestion modules must share a consistent pattern for Polygon/corporate action feeds.

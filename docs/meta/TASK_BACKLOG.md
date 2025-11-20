@@ -39,6 +39,9 @@
 | T-1035 | P1-SP02-PR05 | Plan production-grade scheduler orchestration (Temporal/Airflow). | Medium | Not Started |
 | T-1036 | P1-SP02-PR05 | Add parallel ingestion batching for orchestrated backfills. | Medium | Not Started |
 | T-1037 | P1-SP02-PR05 | Publish scheduler/backfill metrics to Prometheus/OpenTelemetry. | Medium | Not Started |
+| T-1042 | P1-SP03-PR00 | Implement option chain compression/archival strategy. | Medium | Not Started |
+| T-1043 | P1-SP03-PR00 | Design vol-surface re-aggregation utilities for higher-level analytics. | Medium | Not Started |
+| T-1044 | P1-SP03-PR00 | Build option-chain anomaly detection hooks (ties into validation framework). | Medium | Not Started |
 
 _Add tasks as new needs emerge; keep IDs sequential._
 
