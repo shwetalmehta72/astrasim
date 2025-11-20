@@ -7,9 +7,10 @@ from app.cli import run_vol_surface as cli
 def test_vol_surface_cli(monkeypatch):
     called = {}
 
-    async def fake_compute(symbol, target_date):
+    async def fake_compute(symbol, target_date, *, force=False):
         called["symbol"] = symbol
         called["date"] = target_date
+        called["force"] = force
         return {}
 
     def fake_run(coro):

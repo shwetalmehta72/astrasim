@@ -20,11 +20,12 @@ class ExpectedMoveRequest(BaseModel):
 
 
 @router.post("/compute", status_code=status.HTTP_202_ACCEPTED)
-async def compute_expected_move_endpoint(payload: ExpectedMoveRequest) -> dict[str, object]:
+async def compute_expected_move_endpoint(payload: ExpectedMoveRequest, force: bool = Query(False)) -> dict[str, object]:
     result = await compute_expected_move(
         payload.symbol,
         payload.horizon,
         use_latest=payload.use_latest,
+        force=force,
     )
     return {"status": "ok", **result}
 

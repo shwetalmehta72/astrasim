@@ -7,10 +7,11 @@ from typing import Any, Dict, List, Optional
 
 import asyncpg
 
-from app.clients.polygon_options import PolygonOptionsClient
+from app.clients.polygon_options import PolygonOptionsClient, PolygonOptionsClientError
 from app.core.config import Settings, get_settings
 from app.core.logging import get_logger
 from app.db.connection import get_pool
+from app.services.options import cache, degraded_mode, refresh_policy
 
 logger = get_logger("options.surface")
 
@@ -21,6 +22,7 @@ async def compute_surface(
     *,
     client: Optional[PolygonOptionsClient] = None,
     settings: Optional[Settings] = None,
+    force: bool = False,
 ) -> Dict[str, Any]:
     target_date = target_date or date.today()
     settings = settings or get_settings()
@@ -36,6 +38,13 @@ async def compute_surface(
             underlying_price = await _get_underlying_price(conn, security_id, target_date)
             if underlying_price is None:
                 raise ValueError(f"No underlying price found for {symbol}")
+
+            cached_surface = cache.get_cached_surface(symbol, settings=settings) if not force else None
+            if cached_surface and not refresh_policy.should_refresh_surface(symbol, settings=settings, force=force):
+                surface = dict(cached_surface.value)
+                meta = surface.setdefault("metadata", {})
+                meta["cached"] = True
+                return surface
 
             expirations = await client.fetch_expirations(symbol)
             expirations = [
@@ -68,13 +77,48 @@ async def compute_surface(
             moneyness_grid = settings.VOL_SURFACE_MONEYNESS_GRID
             iv_grid: List[List[Optional[float]]] = []
             used_buckets: List[int] = []
+            surface_source = "live"
 
             for bucket in settings.VOL_SURFACE_DTE_BUCKETS:
                 expiration = bucket_expirations.get(bucket)
                 if not expiration:
                     continue
 
-                chain = await client.fetch_chain(symbol, expiration)
+                expiration_key = expiration.isoformat()
+                cached_chain_entry = cache.get_cached_chain(symbol, expiration_key, settings=settings) if not force else None
+                chain = None
+                chain_source = "live"
+
+                if (
+                    cached_chain_entry
+                    and not refresh_policy.should_refresh_chain(symbol, expiration_key, settings=settings, force=force)
+                ):
+                    chain = cached_chain_entry.value
+                    chain_source = cached_chain_entry.metadata.get("source", "cache")
+
+                if chain is None:
+                    try:
+                        chain = await client.fetch_chain(symbol, expiration)
+                        chain_source = "live"
+                        cache.set_cached_chain(
+                            symbol,
+                            expiration_key,
+                            chain,
+                            {"source": chain_source},
+                            settings=settings,
+                        )
+                        refresh_policy.record_chain_refresh(symbol, expiration_key)
+                    except PolygonOptionsClientError:
+                        if cached_chain_entry:
+                            chain = cached_chain_entry.value
+                            chain_source = "cache"
+                        else:
+                            fallback_chain = await degraded_mode.fallback_chain_from_snapshot(conn, security_id, expiration)
+                            if fallback_chain is None:
+                                raise
+                            chain = fallback_chain
+                            chain_source = "historical"
+
                 await _insert_option_chain(conn, security_id, chain)
 
                 bucket_row = await _process_bucket(
@@ -87,9 +131,12 @@ async def compute_surface(
                     moneyness_grid,
                     settings,
                     run_id,
+                    chain_source,
                 )
                 iv_grid.append(bucket_row)
                 used_buckets.append(bucket)
+                if chain_source != "live":
+                    surface_source = "degraded"
 
             snapshot_ts = datetime.now(tz=timezone.utc)
             surface = {
@@ -98,9 +145,25 @@ async def compute_surface(
                 "dte": used_buckets,
                 "moneyness": moneyness_grid,
                 "iv_grid": iv_grid,
+                "metadata": {"source": surface_source, "cached": False},
             }
 
+            if not used_buckets:
+                if cached_surface:
+                    cached = dict(cached_surface.value)
+                    meta = cached.setdefault("metadata", {})
+                    meta["cached"] = True
+                    return cached
+                fallback_surface = await degraded_mode.fallback_surface_from_snapshot(conn, security_id)
+                if fallback_surface:
+                    built = _build_surface_from_points(symbol, fallback_surface["points"], fallback_surface["snapshot_timestamp"])
+                    built["metadata"] = {"source": "historical", "cached": False}
+                    return built
+                raise ValueError("Unable to compute vol surface")
+
             await _complete_run(conn, run_id, len(used_buckets) * len(moneyness_grid))
+            cache.set_cached_surface(symbol, surface, {"source": surface_source}, settings=settings)
+            refresh_policy.record_surface_refresh(symbol)
             return surface
         except Exception as exc:  # noqa: BLE001
             logger.exception("Vol surface computation failed for %s: %s", symbol, exc)
@@ -214,6 +277,7 @@ async def _process_bucket(
     moneyness_grid: List[float],
     settings: Settings,
     run_id: int,
+    chain_source: str,
 ) -> List[Optional[float]]:
     snapshot_ts = datetime.now(tz=timezone.utc)
     iv_row: List[Optional[float]] = []
@@ -278,7 +342,10 @@ async def _process_bucket(
             iv,
             snapshot_ts,
             run_id,
-            option["raw"],
+            {
+                "option": option["raw"],
+                "chain_source": chain_source,
+            },
         )
 
     return iv_row
@@ -433,3 +500,30 @@ async def _log_issue(
         json.dumps(details),
         ingestion_run_id,
     )
+
+
+def _build_surface_from_points(symbol: str, points: List[Dict[str, Any]], snapshot_ts: datetime) -> Dict[str, Any]:
+    if not points:
+        return {
+            "symbol": symbol.upper(),
+            "generated_at": snapshot_ts,
+            "dte": [],
+            "moneyness": [],
+            "iv_grid": [],
+        }
+    moneyness_values = sorted({float(p["moneyness"]) for p in points})
+    dte_values = sorted({int(p["dte"]) for p in points})
+    surface_dict: Dict[int, Dict[float, float]] = {}
+    for p in points:
+        surface_dict.setdefault(int(p["dte"]), {})
+        surface_dict[int(p["dte"])][float(p["moneyness"])] = p["implied_vol"]
+    iv_grid: List[List[Optional[float]]] = []
+    for dte in dte_values:
+        iv_grid.append([surface_dict.get(dte, {}).get(m) for m in moneyness_values])
+    return {
+        "symbol": symbol.upper(),
+        "generated_at": snapshot_ts,
+        "dte": dte_values,
+        "moneyness": moneyness_values,
+        "iv_grid": iv_grid,
+    }

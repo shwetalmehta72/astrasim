@@ -6,10 +6,11 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 import asyncpg
 
-from app.clients.polygon_options import PolygonOptionsClient
+from app.clients.polygon_options import PolygonOptionsClient, PolygonOptionsClientError
 from app.core.config import Settings, get_settings
 from app.core.logging import get_logger
 from app.db.connection import get_pool
+from app.services.options import cache, degraded_mode, refresh_policy
 
 logger = get_logger("options.atm")
 
@@ -20,6 +21,7 @@ async def ingest_atm_straddle(
     *,
     client: Optional[PolygonOptionsClient] = None,
     settings: Optional[Settings] = None,
+    force: bool = False,
 ) -> Dict[str, Any]:
     target_date = target_date or date.today()
     settings = settings or get_settings()
@@ -36,6 +38,15 @@ async def ingest_atm_straddle(
             if underlying_price is None:
                 raise ValueError(f"No underlying price found for {symbol}")
 
+            cached_atm = cache.get_cached_atm(symbol, settings=settings) if not force else None
+            if (
+                cached_atm
+                and not refresh_policy.should_refresh_atm(symbol, underlying_price, settings=settings, force=force)
+            ):
+                payload = dict(cached_atm.value)
+                payload["cached"] = True
+                return payload
+
             expirations = await client.fetch_expirations(symbol)
             expiration = _select_expiration(
                 expirations,
@@ -45,7 +56,42 @@ async def ingest_atm_straddle(
             if expiration is None:
                 raise ValueError("No valid expirations returned from Polygon")
 
-            chain = await client.fetch_chain(symbol, expiration)
+            expiration_key = expiration.isoformat()
+
+            cached_chain_entry = cache.get_cached_chain(symbol, expiration_key, settings=settings) if not force else None
+            chain = None
+            chain_source = "live"
+
+            if (
+                cached_chain_entry
+                and not refresh_policy.should_refresh_chain(symbol, expiration_key, settings=settings, force=force)
+            ):
+                chain = cached_chain_entry.value
+                chain_source = cached_chain_entry.metadata.get("source", "cache")
+
+            if chain is None:
+                try:
+                    chain = await client.fetch_chain(symbol, expiration)
+                    chain_source = "live"
+                    cache.set_cached_chain(
+                        symbol,
+                        expiration_key,
+                        chain,
+                        {"source": chain_source},
+                        settings=settings,
+                    )
+                    refresh_policy.record_chain_refresh(symbol, expiration_key)
+                except PolygonOptionsClientError:
+                    if cached_chain_entry:
+                        chain = cached_chain_entry.value
+                        chain_source = "cache"
+                    else:
+                        fallback = await degraded_mode.fallback_chain_from_snapshot(conn, security_id, expiration)
+                        if fallback is None:
+                            raise
+                        chain = fallback
+                        chain_source = "historical"
+
             if not chain:
                 raise ValueError("Polygon returned empty option chain")
 
@@ -56,6 +102,11 @@ async def ingest_atm_straddle(
                 expiration,
                 target_date,
             )
+            straddle_payload["metadata"] = {
+                "chain_source": chain_source,
+                "degraded": chain_source != "live",
+            }
+
             straddle_id = await _insert_straddle(
                 conn,
                 security_id,
@@ -65,6 +116,13 @@ async def ingest_atm_straddle(
             await _complete_run(conn, run_id, 1)
             straddle_payload["id"] = straddle_id
             straddle_payload["symbol"] = symbol.upper()
+            cache.set_cached_atm(
+                symbol,
+                straddle_payload,
+                {"underlying_price": underlying_price, "source": chain_source},
+                settings=settings,
+            )
+            refresh_policy.record_atm_refresh(symbol, underlying_price)
             return straddle_payload
         except Exception as exc:  # noqa: BLE001
             logger.exception("ATM straddle ingestion failed for %s: %s", symbol, exc)

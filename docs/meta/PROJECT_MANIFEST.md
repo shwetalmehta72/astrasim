@@ -146,6 +146,14 @@ AstraSim is an event-driven Monte Carlo stock simulation and forecasting platfor
 | `backend/tests/test_expected_move_service.py` | Tests for expected move service logic. | P1-SP03 | Completed |
 | `backend/tests/test_expected_move_api.py` | Tests for expected move API. | P1-SP03 | Completed |
 | `backend/tests/test_expected_move_cli.py` | Tests for expected move CLI. | P1-SP03 | Completed |
+| `backend/app/services/options/cache.py` | In-memory cache layer for option chains, ATM straddles, and surfaces. | P1-SP03 | Completed |
+| `backend/app/services/options/refresh_policy.py` | Refresh cadence + threshold policies for options data. | P1-SP03 | Completed |
+| `backend/app/services/options/degraded_mode.py` | Vendor fallback helpers for cached/historical recovery. | P1-SP03 | Completed |
+| `backend/tests/test_options_cache.py` | Tests for cache TTL + invalidation. | P1-SP03 | Completed |
+| `backend/tests/test_options_refresh_policy.py` | Tests for refresh threshold decisions. | P1-SP03 | Completed |
+| `backend/tests/test_options_degraded_mode.py` | Tests for degraded-mode fallbacks. | P1-SP03 | Completed |
+| `backend/tests/test_options_refresh_scheduler.py` | Tests for scheduler-driven options refresh jobs. | P1-SP03 | Completed |
+| `backend/tests/test_options_force_recompute.py` | Tests ensuring `?force=true` bypasses cache/policies. | P1-SP03 | Completed |
 
 _Last updated: 2025-11-20_
 

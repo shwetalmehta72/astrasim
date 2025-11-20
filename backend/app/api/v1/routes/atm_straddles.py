@@ -17,8 +17,8 @@ class IngestRequest(BaseModel):
 
 
 @router.post("/ingest", status_code=status.HTTP_202_ACCEPTED)
-async def ingest_straddle(payload: IngestRequest) -> dict[str, object]:
-    straddle = await ingest_atm_straddle(payload.symbol, payload.target_date)
+async def ingest_straddle(payload: IngestRequest, force: bool = Query(False)) -> dict[str, object]:
+    straddle = await ingest_atm_straddle(payload.symbol, payload.target_date, force=force)
     return {"status": "ok", "straddle": straddle}
 
 

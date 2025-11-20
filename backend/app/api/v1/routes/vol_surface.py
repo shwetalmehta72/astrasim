@@ -17,8 +17,8 @@ class SurfaceRequest(BaseModel):
 
 
 @router.post("/compute", status_code=status.HTTP_202_ACCEPTED)
-async def compute_surface_endpoint(payload: SurfaceRequest) -> dict[str, object]:
-    surface = await compute_surface(payload.symbol, payload.target_date)
+async def compute_surface_endpoint(payload: SurfaceRequest, force: bool = Query(False)) -> dict[str, object]:
+    surface = await compute_surface(payload.symbol, payload.target_date, force=force)
     return {"status": "ok", "surface": surface}
 
 

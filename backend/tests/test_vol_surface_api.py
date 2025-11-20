@@ -5,7 +5,7 @@ from app.main import app
 client = TestClient(app)
 
 
-async def fake_compute(symbol, target_date):
+async def fake_compute(symbol, target_date, *, force=False):
     return {
         "symbol": symbol.upper(),
         "dte": [30],

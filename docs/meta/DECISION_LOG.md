@@ -231,6 +231,20 @@
 - **Status:** Accepted
 - **Implications:** Observability dashboards and Monte Carlo guardrails will rely on these thresholds; adjustments must be reflected in both settings and documentation.
 
+## D-0036 — Options caching & refresh policy
+- **Date:** 2025-11-20
+- **Context:** Options ingestion was hammering Polygon and redoing heavy work without change detection.
+- **Decision:** Introduce in-memory caches with configurable TTLs plus refresh policies keyed on time and underlying price deltas before recomputing chains/ATM/surfaces.
+- **Status:** Accepted
+- **Implications:** Future distributed deployments can swap the cache backend (Redis, Hazelcast) but must preserve the same API/TTL semantics.
+
+## D-0037 — Degraded-mode fallback strategy
+- **Date:** 2025-11-20
+- **Context:** The system needs deterministic behavior when Polygon is unavailable or rate-limited.
+- **Decision:** On vendor failures, reuse cached chains first, then fall back to the latest historical snapshots in Timescale while tagging metadata/flags for downstream consumers.
+- **Status:** Accepted
+- **Implications:** Expected-move diagnostics and vol-surface points now include degraded metadata; later phases must honor these flags when calibrating or displaying data.
+
 ## D-0015 — Async ingestion architecture
 - **Date:** 2025-11-20
 - **Context:** Data ingestion modules must share a consistent pattern for Polygon/corporate action feeds.

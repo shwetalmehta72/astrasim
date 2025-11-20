@@ -11,6 +11,7 @@ import asyncpg
 from app.core.config import Settings, get_settings
 from app.core.logging import get_logger
 from app.db.connection import get_pool
+from app.services.options import cache
 from app.services.options.atm_straddle import calculate_iv_proxy, get_underlying_price
 from app.services.options.vol_surface import get_surface_iv
 
@@ -22,6 +23,7 @@ async def compute_expected_move(
     horizon: Optional[int] = None,
     *,
     use_latest: bool = False,
+    force: bool = False,
     settings: Optional[Settings] = None,
 ) -> Dict[str, Any]:
     settings = settings or get_settings()
@@ -30,12 +32,30 @@ async def compute_expected_move(
         run_id = await _create_ingestion_run(conn)
         try:
             security_id = await _get_security_id(conn, symbol)
-            straddle_row, resolved_horizon = await _fetch_straddle(
-                conn,
-                security_id,
-                horizon,
-                use_latest,
-            )
+            cached_atm = cache.get_cached_atm(symbol) if not force else None
+            straddle_row: Optional[Dict[str, Any]] = None
+            resolved_horizon: Optional[int] = None
+
+            if cached_atm:
+                cached_value = cached_atm.value
+                cached_dte = cached_value.get("dte")
+                if use_latest or horizon is None or cached_dte == horizon:
+                    straddle_row = {
+                        "id": cached_value.get("id"),
+                        "straddle_mid": cached_value["straddle_mid"],
+                        "dte": cached_dte,
+                        "snapshot_timestamp": cached_value.get("snapshot_timestamp"),
+                    }
+                    resolved_horizon = cached_dte
+
+            if straddle_row is None:
+                straddle_row, resolved_horizon = await _fetch_straddle(
+                    conn,
+                    security_id,
+                    horizon,
+                    use_latest,
+                )
+
             if resolved_horizon is None:
                 raise ValueError("Unable to determine horizon for expected move")
 
@@ -51,7 +71,12 @@ async def compute_expected_move(
             )
             atm_iv = calculate_iv_proxy(straddle_mid, underlying_price, resolved_horizon)
 
-            surface_iv = await get_surface_iv(symbol, resolved_horizon, 0.0)
+            surface_iv = None
+            cached_surface = cache.get_cached_surface(symbol) if not force else None
+            if cached_surface:
+                surface_iv = _surface_iv_from_cache(cached_surface.value, resolved_horizon)
+            if surface_iv is None:
+                surface_iv = await get_surface_iv(symbol, resolved_horizon, 0.0)
             surface_expected_move = None
             if surface_iv:
                 surface_expected_move = (
@@ -89,7 +114,11 @@ async def compute_expected_move(
                 severity_surface,
                 severity_realized,
                 run_id,
-                {"straddle": straddle_row, "atm_iv": atm_iv},
+                {
+                    "straddle": straddle_row,
+                    "atm_iv": atm_iv,
+                    "metadata": cached_atm.metadata if cached_atm else {},
+                },
             )
 
             await _maybe_insert_flag(
@@ -414,4 +443,19 @@ async def _get_security_id(conn: asyncpg.Connection, symbol: str) -> int:
     if security_id is None:
         raise ValueError(f"Security {symbol} not found in securities table")
     return int(security_id)
+
+
+def _surface_iv_from_cache(surface: Dict[str, Any], target_dte: int) -> Optional[float]:
+    dtes = surface.get("dte")
+    moneyness = surface.get("moneyness")
+    grid = surface.get("iv_grid")
+    if not dtes or not moneyness or not grid:
+        return None
+    m_index = min(range(len(moneyness)), key=lambda idx: abs(float(moneyness[idx]) - 0.0))
+    closest_idx = min(range(len(dtes)), key=lambda idx: abs(dtes[idx] - target_dte))
+    row = grid[closest_idx]
+    if row is None or len(row) <= m_index:
+        return None
+    value = row[m_index]
+    return value
 

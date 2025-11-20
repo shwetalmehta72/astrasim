@@ -5,7 +5,7 @@ from app.main import app
 client = TestClient(app)
 
 
-async def fake_ingest(symbol, target_date):
+async def fake_ingest(symbol, target_date, *, force=False):
     return {
         "symbol": symbol.upper(),
         "expiration": "2025-12-19",

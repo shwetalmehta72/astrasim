@@ -7,7 +7,7 @@ from app.cli import run_expected_move as cli
 def test_expected_move_cli(monkeypatch):
     called = {}
 
-    async def fake_compute(symbol, horizon, use_latest=False):
+    async def fake_compute(symbol, horizon, use_latest=False, force=False):
         called["symbol"] = symbol
         called["horizon"] = horizon
         called["use_latest"] = use_latest

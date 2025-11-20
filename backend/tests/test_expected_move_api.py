@@ -5,7 +5,7 @@ from app.main import app
 client = TestClient(app)
 
 
-async def fake_compute(symbol, horizon, use_latest=False):
+async def fake_compute(symbol, horizon, use_latest=False, force=False):
     return {
         "id": 1,
         "symbol": symbol.upper(),

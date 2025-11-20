@@ -17,6 +17,8 @@ JOB_DEFINITIONS = {
     "update_corp_actions": jobs.job_update_corp_actions,
     "update_indexes": jobs.job_update_indexes,
     "validation_sweep": jobs.job_validation_sweep,
+    "refresh_options_atm": jobs.job_refresh_options_atm,
+    "refresh_options_surface": jobs.job_refresh_options_surface,
 }
 
 JOB_SCHEDULES = {
@@ -24,6 +26,8 @@ JOB_SCHEDULES = {
     "update_corp_actions": {"hour": 2, "minute": 0},
     "update_indexes": {"hour": 3, "minute": 0},
     "validation_sweep": {"hour": 4, "minute": 0},
+    "refresh_options_atm": {"hour": 5, "minute": 0},
+    "refresh_options_surface": {"hour": 5, "minute": 30},
 }
 
 
