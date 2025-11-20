@@ -412,4 +412,3 @@ async def _log_issue(
         json.dumps(details),
         ingestion_run_id,
     )
-
