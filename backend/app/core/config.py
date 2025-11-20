@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     DB_PASSWORD: str = Field(default="astrasim", alias="DATABASE_PASSWORD")
 
     POLYGON_API_KEY: str = Field(default="", alias="POLYGON_API_KEY")
+    POLYGON_OPTIONS_API_KEY: str = Field(default="", alias="POLYGON_OPTIONS_API_KEY")
     POLYGON_BASE_URL: str = "https://api.polygon.io"
     INGESTION_MAX_ATTEMPTS: int = 5
     INGESTION_RATE_LIMIT_SLEEP: float = 1.0
@@ -39,6 +40,9 @@ class Settings(BaseSettings):
     SCHEDULER_TIMEZONE: str = "UTC"
     JOB_INTERVAL_MINUTES: int = 60
     OPTIONS_SCHEMA_VERSION: str = "v1"
+    OPTIONS_DEFAULT_DTE_TARGET: int = 30
+    OPTIONS_MIN_DTE_BUFFER: int = 7
+    OPTIONS_MONEINESS_WINDOW: float = 0.05
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod

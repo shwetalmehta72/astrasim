@@ -13,7 +13,7 @@
 | T-1009 | P1-SP01-PR05 | Add dedicated backend test harness workflow (pytest, coverage). | Medium | Completed |
 | T-1010 | P1-SP01-PR05 | Add frontend test harness (Playwright / Vitest) scaffolding. | Medium | Not Started |
 | T-1011 | P1-SP01-PR06 | Improve Docker dev performance (caching, mount optimizations). | Low | Not Started |
-| T-1012 | P1-SP03-PR02 | Design options/IV schema tables (straddles, surfaces, normalization). | High | Not Started |
+| T-1012 | P1-SP03-PR02 | Design options/IV schema tables (straddles, surfaces, normalization). | High | Completed |
 | T-1013 | P1-SP04-PR01 | Define regime/event/factor schema (states, dependencies, storage). | High | Not Started |
 | T-1014 | P1-SP01-PR07 | Establish migration/versioning strategy beyond init scripts (e.g., Alembic or Sqitch). | Medium | Not Started |
 | T-1015 | P1-SP01-PR08 | Add structured logging with correlation/trace IDs per request. | Medium | Not Started |
@@ -39,6 +39,9 @@
 | T-1035 | P1-SP02-PR05 | Plan production-grade scheduler orchestration (Temporal/Airflow). | Medium | Not Started |
 | T-1036 | P1-SP02-PR05 | Add parallel ingestion batching for orchestrated backfills. | Medium | Not Started |
 | T-1037 | P1-SP02-PR05 | Publish scheduler/backfill metrics to Prometheus/OpenTelemetry. | Medium | Not Started |
+| T-1045 | P1-SP03-PR01 | Refine ATM strike selection with minimum spread / liquidity checks. | Medium | Not Started |
+| T-1046 | P1-SP03-PR01 | Upgrade IV proxy before Monte Carlo calibration phase. | Medium | Not Started |
+| T-1047 | P1-SP03-PR01 | Extend options ingestion to capture Greeks (delta, gamma, vega). | Medium | Not Started |
 | T-1042 | P1-SP03-PR00 | Implement option chain compression/archival strategy. | Medium | Not Started |
 | T-1043 | P1-SP03-PR00 | Design vol-surface re-aggregation utilities for higher-level analytics. | Medium | Not Started |
 | T-1044 | P1-SP03-PR00 | Build option-chain anomaly detection hooks (ties into validation framework). | Medium | Not Started |

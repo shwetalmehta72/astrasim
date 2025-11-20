@@ -24,6 +24,10 @@ def get_logger(name: str | None = None) -> logging.Logger:
     return logging.getLogger(full_name)
 
 
+def get_options_logger() -> logging.Logger:
+    return logging.getLogger(f"{LOGGER_NAME}.options")
+
+
 RequestHandler = Callable[[Request], Awaitable[Response]]
 
 

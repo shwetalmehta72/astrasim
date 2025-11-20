@@ -123,6 +123,14 @@ AstraSim is an event-driven Monte Carlo stock simulation and forecasting platfor
 | `infra/db/timescale/schema/007_vol_surface_points.sql` | Hypertable for vol surface points. | P1-SP03 | Completed |
 | `backend/app/core/config.py` | Settings extended with OPTIONS_SCHEMA_VERSION. | P1-SP03 | Completed |
 | `backend/.env.example` | Added POLYGON_OPTIONS_API_KEY placeholder. | P1-SP03 | Completed |
+| `backend/app/clients/polygon_options.py` | Polygon v3 options client for chain + expiration data. | P1-SP03 | Completed |
+| `backend/app/services/options/atm_straddle.py` | ATM straddle ingestion + normalization pipeline. | P1-SP03 | Completed |
+| `backend/app/api/v1/routes/atm_straddles.py` | API endpoints for ingesting and listing ATM straddles. | P1-SP03 | Completed |
+| `backend/app/cli/run_atm_straddle_ingestion.py` | CLI entrypoint for ATM straddle ingestion. | P1-SP03 | Completed |
+| `backend/tests/test_polygon_options_client.py` | Unit tests for Polygon options client normalization. | P1-SP03 | Completed |
+| `backend/tests/test_atm_straddle_service.py` | Tests for ATM straddle service logic + persistence. | P1-SP03 | Completed |
+| `backend/tests/test_atm_straddle_api.py` | API tests covering ingest + listing endpoints. | P1-SP03 | Completed |
+| `backend/tests/test_atm_straddle_cli.py` | Tests for ATM straddle CLI wiring. | P1-SP03 | Completed |
 
 _Last updated: 2025-11-20_
 

@@ -182,6 +182,20 @@
 - **Status:** Accepted
 - **Implications:** Future queries and aggregations should leverage hypertable functions; any additional time-series option metrics must follow the same pattern.
 
+## D-0029 — ATM strike selection rule
+- **Date:** 2025-11-20
+- **Context:** Phase 1 needs a deterministic rule for choosing ATM strikes before more advanced Greeks or skew adjustments exist.
+- **Decision:** Select the strike whose absolute distance to the latest underlying close is minimal, requiring both call and put legs at that strike; fall back to the nearest future expiration with at least seven days to expiry.
+- **Status:** Accepted
+- **Implications:** Future refinements (e.g., spread filters, skew adjustments) must build atop this baseline logic and document deviations.
+
+## D-0030 — Phase-1 IV proxy formula
+- **Date:** 2025-11-20
+- **Context:** We need an implied-volatility proxy before the full surface/solver work lands later in SP03.
+- **Decision:** Approximate IV as `straddle_mid / (underlying_price * sqrt(DTE/365))`, using ATM call/put mids and guarding against invalid inputs.
+- **Status:** Accepted
+- **Implications:** Monte Carlo calibration should treat this as provisional; a true IV solver will replace the proxy and update downstream consumers.
+
 ## D-0015 — Async ingestion architecture
 - **Date:** 2025-11-20
 - **Context:** Data ingestion modules must share a consistent pattern for Polygon/corporate action feeds.
