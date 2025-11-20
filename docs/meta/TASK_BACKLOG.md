@@ -42,9 +42,18 @@
 | T-1045 | P1-SP03-PR01 | Refine ATM strike selection with minimum spread / liquidity checks. | Medium | Not Started |
 | T-1046 | P1-SP03-PR01 | Upgrade IV proxy before Monte Carlo calibration phase. | Medium | Not Started |
 | T-1047 | P1-SP03-PR01 | Extend options ingestion to capture Greeks (delta, gamma, vega). | Medium | Not Started |
+| T-1048 | P1-SP03-PR02 | Upgrade vol surface interpolation (linear/spline) mechanics. | Medium | Not Started |
+| T-1049 | P1-SP03-PR02 | Enforce arbitrage-free constraints on stored surfaces. | Medium | Not Started |
+| T-1050 | P1-SP03-PR02 | Support merging multi-expiration surfaces for regime modeling. | Medium | Not Started |
 | T-1042 | P1-SP03-PR00 | Implement option chain compression/archival strategy. | Medium | Not Started |
 | T-1043 | P1-SP03-PR00 | Design vol-surface re-aggregation utilities for higher-level analytics. | Medium | Not Started |
 | T-1044 | P1-SP03-PR00 | Build option-chain anomaly detection hooks (ties into validation framework). | Medium | Not Started |
+| T-1048 | P1-SP02-PR04 | Fix corp-action validation to handle date objects and add regression tests so duplicate detection no longer raises. | High | Not Started |
+| T-1049 | P1-SP02-PR01 | Refactor ingestion/scheduler API tests to use the patched FastAPI client fixture instead of global TestClient instances. | Medium | Not Started |
+| T-1050 | P1-SP02-PR04 | Implement reconciliation engine unit tests (current `test_reconciliation_engine.py` is empty). | Medium | Not Started |
+| T-1051 | P1-SP01-PR01 | Align `uv.lock` Python requirement with the 3.11 toolchain (regenerate lock/update docs). | Medium | Not Started |
+| T-1052 | P1-SP01-PR04 | Fix Next.js root layout semantics (avoid nested `<main>` and redundant Container sizing). | Medium | Not Started |
+| T-1053 | P1-SP01-PR05 | Update `infra/docker/frontend/Dockerfile` to install deps when no `package-lock.json` is present (support pnpm/yarn locks). | High | Not Started |
 
 _Add tasks as new needs emerge; keep IDs sequential._
 

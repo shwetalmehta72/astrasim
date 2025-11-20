@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from datetime import date, datetime
-from typing import Any, Dict, List, Optional
+from datetime import date
+from typing import Any, Dict, List, Optional, Sequence
 
 import httpx
 from tenacity import (
@@ -43,32 +43,6 @@ class PolygonOptionsClient:
     async def close(self) -> None:
         if self._owns_client:
             await self._client.aclose()
-
-    async def fetch_expirations(self, symbol: str) -> List[date]:
-        params = {
-            "underlying_ticker": symbol.upper(),
-            "limit": 1000,
-            "order": "asc",
-        }
-        url = "/v3/reference/options/contracts"
-        expirations: set[date] = set()
-
-        while True:
-            data = await self._request(url, params)
-            for item in data.get("results", []):
-                exp_str = (
-                    item.get("expiration_date")
-                    or item.get("details", {}).get("expiration_date")
-                )
-                if exp_str:
-                    expirations.add(date.fromisoformat(exp_str))
-            next_url = data.get("next_url")
-            if not next_url:
-                break
-            url = next_url
-            params = None
-
-        return sorted(expirations)
 
     async def fetch_chain(self, symbol: str, expiration: date) -> List[Dict[str, Any]]:
         params = {
@@ -123,6 +97,32 @@ class PolygonOptionsClient:
 
         return normalized
 
+    async def fetch_expirations(self, symbol: str) -> List[date]:
+        params = {
+            "underlying_ticker": symbol.upper(),
+            "limit": 1000,
+            "order": "asc",
+        }
+        url = "/v3/reference/options/contracts"
+        expirations: set[date] = set()
+
+        while True:
+            data = await self._request(url, params)
+            for item in data.get("results", []):
+                exp_str = (
+                    item.get("expiration_date")
+                    or item.get("details", {}).get("expiration_date")
+                )
+                if exp_str:
+                    expirations.add(date.fromisoformat(exp_str))
+            next_url = data.get("next_url")
+            if not next_url:
+                break
+            url = next_url
+            params = None
+
+        return sorted(expirations)
+
     async def _request(
         self,
         url: str,
@@ -151,4 +151,44 @@ class PolygonOptionsClient:
 
     async def __aexit__(self, exc_type, exc, tb) -> None:  # noqa: ANN001
         await self.close()
+
+    @staticmethod
+    def calculate_moneyness(strike: float, underlying_price: float) -> float:
+        if underlying_price == 0:
+            return 0.0
+        return (strike - underlying_price) / underlying_price
+
+    @staticmethod
+    def option_mid(option: Dict[str, Any]) -> Optional[float]:
+        if option.get("mid") is not None:
+            return option["mid"]
+        bid = option.get("bid")
+        ask = option.get("ask")
+        if bid is None or ask is None:
+            return None
+        return (bid + ask) / 2
+
+    @staticmethod
+    def is_liquid(option: Dict[str, Any], min_liquidity: int) -> bool:
+        volume = option.get("volume") or 0
+        open_interest = option.get("open_interest") or 0
+        return volume >= min_liquidity or open_interest >= min_liquidity
+
+    @staticmethod
+    def nearest_option_by_moneyness(
+        options: Sequence[Dict[str, Any]],
+        target_strike: float,
+        option_type: str,
+        min_liquidity: int,
+    ) -> Optional[Dict[str, Any]]:
+        matches = [
+            opt
+            for opt in options
+            if opt.get("call_put") == option_type
+            and PolygonOptionsClient.is_liquid(opt, min_liquidity)
+            and PolygonOptionsClient.option_mid(opt) not in (None, 0)
+        ]
+        if not matches:
+            return None
+        return min(matches, key=lambda opt: abs(opt["strike"] - target_strike))
 

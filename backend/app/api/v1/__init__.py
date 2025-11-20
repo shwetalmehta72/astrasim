@@ -9,6 +9,7 @@ from app.api.v1.routes import (
     meta,
     scheduler,
     validation,
+    vol_surface,
 )
 
 api_router = APIRouter()
@@ -20,4 +21,5 @@ api_router.include_router(indexes_ingestion.router, tags=["indexes"])
 api_router.include_router(validation.router, tags=["validation"])
 api_router.include_router(scheduler.router, tags=["scheduler"])
 api_router.include_router(atm_straddles.router, tags=["options"])
+api_router.include_router(vol_surface.router, tags=["options"])
 

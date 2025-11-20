@@ -43,6 +43,16 @@ class Settings(BaseSettings):
     OPTIONS_DEFAULT_DTE_TARGET: int = 30
     OPTIONS_MIN_DTE_BUFFER: int = 7
     OPTIONS_MONEINESS_WINDOW: float = 0.05
+    VOL_SURFACE_DTE_BUCKETS: list[int] = Field(
+        default_factory=lambda: [7, 14, 21, 30, 45, 60]
+    )
+    VOL_SURFACE_MONEYNESS_GRID: list[float] = Field(
+        default_factory=lambda: [-0.20, -0.10, -0.05, 0.0, 0.05, 0.10, 0.20]
+    )
+    VOL_SURFACE_MIN_LIQUIDITY: int = 100
+    VOL_SURFACE_MIN_DTE: int = 5
+    VOL_SURFACE_MAX_DTE: int = 60
+    VOL_SURFACE_MAX_BUCKET_DRIFT: int = 5
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod

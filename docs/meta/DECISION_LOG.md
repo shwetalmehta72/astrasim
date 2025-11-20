@@ -196,6 +196,27 @@
 - **Status:** Accepted
 - **Implications:** Monte Carlo calibration should treat this as provisional; a true IV solver will replace the proxy and update downstream consumers.
 
+## D-0031 — Vol surface DTE bucketing
+- **Date:** 2025-11-20
+- **Context:** Phase-1 needs deterministic expirations for vol surface approximations without full calendar modeling.
+- **Decision:** Standardize on fixed buckets `[7, 14, 21, 30, 45, 60]` days; per bucket select the nearest available expiration within ±5 days, otherwise skip with a WARN.
+- **Status:** Accepted
+- **Implications:** Future prompts can expand the bucket list or make it dynamic, but existing consumers assume this baseline ordering.
+
+## D-0032 — Moneyness grid strategy
+- **Date:** 2025-11-20
+- **Context:** Need consistent strike coverage for early vol surfaces.
+- **Decision:** Use fixed moneyness points `[-0.20, -0.10, -0.05, 0.0, 0.05, 0.10, 0.20]`, selecting nearest available strikes in the option chain for each grid value.
+- **Status:** Accepted
+- **Implications:** Later phases may introduce interpolation or skew-aware grids, but until then analytics must expect this grid ordering.
+
+## D-0033 — Phase-1 IV approximation
+- **Date:** 2025-11-20
+- **Context:** Full implied volatility solvers are out of scope for SP03.
+- **Decision:** Reuse the straddle IV proxy `mid / (underlying_price * sqrt(DTE/365))` for every grid point, skipping illiquid or invalid options while logging reconciliation warnings.
+- **Status:** Accepted
+- **Implications:** Upgrading to true IV solutions or arbitrage filters will require recalculating stored surfaces and updating this decision.
+
 ## D-0015 — Async ingestion architecture
 - **Date:** 2025-11-20
 - **Context:** Data ingestion modules must share a consistent pattern for Polygon/corporate action feeds.

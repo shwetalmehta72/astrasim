@@ -131,6 +131,13 @@ AstraSim is an event-driven Monte Carlo stock simulation and forecasting platfor
 | `backend/tests/test_atm_straddle_service.py` | Tests for ATM straddle service logic + persistence. | P1-SP03 | Completed |
 | `backend/tests/test_atm_straddle_api.py` | API tests covering ingest + listing endpoints. | P1-SP03 | Completed |
 | `backend/tests/test_atm_straddle_cli.py` | Tests for ATM straddle CLI wiring. | P1-SP03 | Completed |
+| `backend/app/services/options/vol_surface.py` | Vol surface approximation engine (DTE buckets × moneyness grid). | P1-SP03 | Completed |
+| `backend/app/api/v1/routes/vol_surface.py` | API endpoints for computing and retrieving vol surfaces. | P1-SP03 | Completed |
+| `backend/app/cli/run_vol_surface.py` | CLI entrypoint for vol surface computation. | P1-SP03 | Completed |
+| `backend/tests/test_vol_surface_service.py` | Tests for vol surface computation + persistence. | P1-SP03 | Completed |
+| `backend/tests/test_vol_surface_api.py` | Tests for vol surface API routes. | P1-SP03 | Completed |
+| `backend/tests/test_vol_surface_cli.py` | Tests for vol surface CLI wiring. | P1-SP03 | Completed |
+| `backend/tests/test_vol_surface_client_helpers.py` | Tests for Polygon options helper functions. | P1-SP03 | Completed |
 
 _Last updated: 2025-11-20_
 
