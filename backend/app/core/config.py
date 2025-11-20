@@ -53,6 +53,10 @@ class Settings(BaseSettings):
     VOL_SURFACE_MIN_DTE: int = 5
     VOL_SURFACE_MAX_DTE: int = 60
     VOL_SURFACE_MAX_BUCKET_DRIFT: int = 5
+    EXPECTED_MOVE_TOL_IV: float = 0.1
+    EXPECTED_MOVE_TOL_REALIZED: float = 0.15
+    EXPECTED_MOVE_WARN_THRESHOLD: float = 0.1
+    EXPECTED_MOVE_SEVERE_THRESHOLD: float = 0.25
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod

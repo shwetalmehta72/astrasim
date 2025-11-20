@@ -32,7 +32,7 @@ async def ingest_atm_straddle(
         run_id = await _create_ingestion_run(conn)
         try:
             security_id = await _get_security_id(conn, symbol)
-            underlying_price = await _get_underlying_price(conn, security_id, target_date)
+            underlying_price = await get_underlying_price(conn, security_id, target_date)
             if underlying_price is None:
                 raise ValueError(f"No underlying price found for {symbol}")
 
@@ -123,7 +123,7 @@ async def _get_security_id(conn: asyncpg.Connection, symbol: str) -> int:
     return int(security_id)
 
 
-async def _get_underlying_price(
+async def get_underlying_price(
     conn: asyncpg.Connection,
     security_id: int,
     target_date: date,
@@ -196,7 +196,7 @@ def _build_atm_straddle(
 
     straddle_mid = call_mid + put_mid
     dte = max((expiration - target_date).days, 1)
-    implied_vol = _calculate_iv_proxy(straddle_mid, underlying_price, dte)
+    implied_vol = calculate_iv_proxy(straddle_mid, underlying_price, dte)
 
     snapshot_ts = datetime.now(tz=timezone.utc)
 
@@ -220,7 +220,7 @@ def _safe_mid(bid: Optional[float], ask: Optional[float]) -> Optional[float]:
     return (bid + ask) / 2
 
 
-def _calculate_iv_proxy(straddle_mid: float, underlying_price: float, dte: int) -> Optional[float]:
+def calculate_iv_proxy(straddle_mid: float, underlying_price: float, dte: int) -> Optional[float]:
     if underlying_price <= 0 or dte <= 0:
         return None
     try:

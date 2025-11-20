@@ -217,6 +217,20 @@
 - **Status:** Accepted
 - **Implications:** Upgrading to true IV solutions or arbitrage filters will require recalculating stored surfaces and updating this decision.
 
+## D-0034 — Expected move definition (Phase 1)
+- **Date:** 2025-11-20
+- **Context:** We need a canonical definition before Monte Carlo calibration consumes options-implied signals.
+- **Decision:** Use ATM straddle mid as the absolute expected move and straddle_mid / underlying as the percent move for a given horizon, with surface IV providing a secondary proxy.
+- **Status:** Accepted
+- **Implications:** Future prompts (SP07/SP08) must extend this definition rather than replace it; any new methodologies must reconcile with stored diagnostics.
+
+## D-0035 — Sanity check tolerance strategy
+- **Date:** 2025-11-20
+- **Context:** Calibration flags require deterministic thresholds to compare options vs surface vs realized moves.
+- **Decision:** Default tolerances: warn at 10%, severe at 25%, and trigger calibration flags when pct_diff exceeds configurable IV or realized tolerances (10% and 15% respectively).
+- **Status:** Accepted
+- **Implications:** Observability dashboards and Monte Carlo guardrails will rely on these thresholds; adjustments must be reflected in both settings and documentation.
+
 ## D-0015 — Async ingestion architecture
 - **Date:** 2025-11-20
 - **Context:** Data ingestion modules must share a consistent pattern for Polygon/corporate action feeds.

@@ -163,6 +163,27 @@ async def get_recent_surfaces(symbol: str, limit: int = 5) -> List[Dict[str, Any
         return surfaces
 
 
+async def get_surface_iv(symbol: str, target_dte: int, moneyness: float = 0.0) -> Optional[float]:
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        security_id = await _get_security_id(conn, symbol)
+        row = await conn.fetchrow(
+            """
+            SELECT implied_vol
+            FROM vol_surface_points
+            WHERE security_id=$1
+            ORDER BY ABS(dte-$2), ABS(moneyness-$3), snapshot_timestamp DESC
+            LIMIT 1
+            """,
+            security_id,
+            target_dte,
+            moneyness,
+        )
+        if row:
+            return row["implied_vol"]
+        return None
+
+
 def _match_expiration_for_bucket(
     expirations: List[date],
     target_date: date,
@@ -257,7 +278,7 @@ async def _process_bucket(
             iv,
             snapshot_ts,
             run_id,
-            json.dumps(option["raw"]),
+            option["raw"],
         )
 
     return iv_row

@@ -45,6 +45,9 @@
 | T-1048 | P1-SP03-PR02 | Upgrade vol surface interpolation (linear/spline) mechanics. | Medium | Not Started |
 | T-1049 | P1-SP03-PR02 | Enforce arbitrage-free constraints on stored surfaces. | Medium | Not Started |
 | T-1050 | P1-SP03-PR02 | Support merging multi-expiration surfaces for regime modeling. | Medium | Not Started |
+| T-1051 | P1-SP03-PR03 | Implement advanced expected-move calibration using full IV surface. | Medium | Not Started |
+| T-1052 | P1-SP03-PR03 | Add spot/strike-skew adjustments to expected move logic. | Medium | Not Started |
+| T-1053 | P1-SP03-PR03 | Integrate expected move guardrails with SP08 Monte Carlo. | Medium | Not Started |
 | T-1042 | P1-SP03-PR00 | Implement option chain compression/archival strategy. | Medium | Not Started |
 | T-1043 | P1-SP03-PR00 | Design vol-surface re-aggregation utilities for higher-level analytics. | Medium | Not Started |
 | T-1044 | P1-SP03-PR00 | Build option-chain anomaly detection hooks (ties into validation framework). | Medium | Not Started |

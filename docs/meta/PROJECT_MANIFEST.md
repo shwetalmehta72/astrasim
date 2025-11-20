@@ -138,6 +138,14 @@ AstraSim is an event-driven Monte Carlo stock simulation and forecasting platfor
 | `backend/tests/test_vol_surface_api.py` | Tests for vol surface API routes. | P1-SP03 | Completed |
 | `backend/tests/test_vol_surface_cli.py` | Tests for vol surface CLI wiring. | P1-SP03 | Completed |
 | `backend/tests/test_vol_surface_client_helpers.py` | Tests for Polygon options helper functions. | P1-SP03 | Completed |
+| `infra/db/timescale/schema/008_expected_move_checks.sql` | Hypertable storing expected move diagnostics. | P1-SP03 | Completed |
+| `infra/db/timescale/schema/009_calibration_flags.sql` | Hypertable for calibration mismatch flags. | P1-SP03 | Completed |
+| `backend/app/services/options/expected_move.py` | Expected move computation + sanity checks. | P1-SP03 | Completed |
+| `backend/app/api/v1/routes/expected_move.py` | API routes for expected move compute/list. | P1-SP03 | Completed |
+| `backend/app/cli/run_expected_move.py` | CLI entrypoint for expected move jobs. | P1-SP03 | Completed |
+| `backend/tests/test_expected_move_service.py` | Tests for expected move service logic. | P1-SP03 | Completed |
+| `backend/tests/test_expected_move_api.py` | Tests for expected move API. | P1-SP03 | Completed |
+| `backend/tests/test_expected_move_cli.py` | Tests for expected move CLI. | P1-SP03 | Completed |
 
 _Last updated: 2025-11-20_
 
